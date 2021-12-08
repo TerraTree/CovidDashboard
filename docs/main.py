@@ -1,33 +1,35 @@
-"""This module handles the main functionality of Sched and Flask modules, as
-well as partial capability of updating the news and data. It listens out for
-input from the interface and updates accordingly to the specific input """
-
+import tests.test_covid_data_handler
+from covid_data_handler import *
+from covid_news_handling import *
+from flask import *
 import sched
 import time
 import json
 import logging
-from flask import request, render_template, Flask
-from covid_data_handler import covid_API_request
-from covid_news_handling import update_news
-from time_conversions import hhmm_to_seconds
-from tests import test_covid_data_handler, test_news_data_handling
+from time_conversions import *
+from tests import test_covid_data_handler
+from tests import test_news_data_handling
+
+'''This module handles the main functionality of sched and flask modules, as well as partial capability of updating 
+the news and data. It listens out for input from the interface and updates accordingly to the specific input '''
 
 
-# import tests.test_covid_data_handler
+'''This function changes the articles being displayed on the dashboard by adding new articles from the news API'''
 
 
 def add_news_articles():
-    """This function changes the articles being displayed on the dashboard
-    by adding new articles from the news API"""
+    # adds the news articles from the news API to the news list
     new_news = update_news(covid_terms, old_articles, len(news), news_api_key)
     print("new_news", new_news)
     for article in new_news:
         news.append(article)
 
 
+'''Updates the data that is stored and displayed on the dashboard'''
+
+
 def add_data_update():
-    """Updates the data that is stored and displayed
-    on the dashboard, taking new data from covid19 API"""
+    # Clears and then adds the updated data back to the dictionaries for both local and national data
     local_data.clear()
     new_loc_data = covid_API_request(local_name, "ltla")
     local_data.update(new_loc_data)
@@ -37,14 +39,14 @@ def add_data_update():
 
 
 # data tests to test if the data taken from the csv is valid and if the API is working properly
-data_tests = test_covid_data_handler
+data_tests = tests.test_covid_data_handler
 data_tests.test_covid_API_request()
 data_tests.test_parse_csv_data()
 data_tests.test_schedule_covid_updates()
 data_tests.test_process_covid_csv_data()
 
 # news tests to test if the news API is returning valid responses
-news_tests = test_news_data_handling
+news_tests = tests.test_news_data_handling
 # news_tests.test_news_API_request()
 # news_tests.test_update_news()
 
@@ -55,11 +57,9 @@ covid_terms = ""
 national_name = "england"
 news_api_key = ""
 
-'''Reads the config.json file and stores it into a dictionary which the
-values are then stored into individual variables for use within the code.
-If the config file is not found, it raises an exception and the initial values are
+'''Reads the config.json file and stores it into a dictionary which the values are then stored into individual 
+variables for use within the code. If the config file is not found, it raises an exception and the initial values are 
 used if they weren't already declared in the try statement '''
-
 try:
     config_file = open("config.json")
     data = json.load(config_file)
@@ -71,7 +71,6 @@ try:
     image = "/" + data["favicon"]
     news_api_key = data["news_api_key"]
 except:
-    logging.error(Exception)
     raise Exception
 
 s = sched.scheduler(time.time, time.sleep)
@@ -79,23 +78,21 @@ app = Flask(__name__)
 news = []
 old_articles = []
 update_list = []
-# creates an initial dictionary for the local area
-local_data = covid_API_request(local_name, "ltla")
-# creates an initial dictionary for the national area
-national_data = covid_API_request(national_name, "nation")
-logging.basicConfig(filename="log.log", level=logging.DEBUG)
-logging.info("yo")
+local_data = covid_API_request(local_name, "ltla")  # creates an initial dictionary for the local area
+national_data = covid_API_request(national_name, "nation")  # creates an initial dictionary for the national area
+
+'''Main function for the website. Runs every time the /index page is loaded on the website. Scheduled updates run 
+once the function is called next. Request.args.get() functions are called only if it receives input and create 
+schedules updates '''
 
 
 @app.route("/index")
 def index():
-    """Main function for the website. Runs every time the /index page
-    is loaded on the website. Scheduled updates run once the function is
-    called next. Request.args.get() functions are called only if it
-    receives input and create schedules updates """
     s.run(blocking=False)
-    new_array = []
+    newArray = []
     if request.args.get("notif"):  # triggers if a news notification is removed
+        print("get:",request.args.get("notif"))
+        print("getlist:",request.args.getlist("notif"))
         for article in news:
             if article["title"] == request.args.get("notif"):
                 # finds the correct article in the list and removes it
@@ -110,23 +107,19 @@ def index():
 
     elif request.args.get("update"):  # triggers when an update is created with the input forms
         for value in request.args.values():
-            # array structure is time, updateName, repeat, isDataUpdate, isNewsUpdate
-            new_array.append(value)
+            newArray.append(value)  # array structure is time, updateName, repeat, isDataUpdate, isNewsUpdate
         c_time = str(time.gmtime().tm_hour) + ":" + str(time.gmtime().tm_min)
-        delay = hhmm_to_seconds(new_array[0]) - (hhmm_to_seconds(
+        delay = hhmm_to_seconds(newArray[0]) - (hhmm_to_seconds(
             c_time) + time.gmtime().tm_sec)  # creates a delay for the scheduled update in seconds
-        if "repeat" in new_array:
-            pass
-            # repeat = True
-        if "covid-data" in new_array:
+        if "repeat" in newArray:
+            repeat = True
+        if "covid-data" in newArray:
             s.enter(delay, 1, add_data_update)  # schedules a data update
-        update_list.append({"title": new_array[1] + " Data",
-                            "content": "Data Update: " + new_array[0]})
-        if "news" in new_array:
+            update_list.append({"title": newArray[1] + " Data", "content": "Data Update: " + newArray[0]})
+        if "news" in newArray:
             # create delay
             s.enter(delay, 2, add_news_articles)  # schedules a news update
-            update_list.append({"title": new_array[1] + " News",
-                                "content": "News Update: " + new_array[0]})
+            update_list.append({"title": newArray[1] + " News", "content": "News Update: " + newArray[0]})
 
     return render_template("index.html",
                            title=title,

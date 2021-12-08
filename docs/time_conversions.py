@@ -1,8 +1,5 @@
-"""Converts hh:mm to seconds"""
-
-
-def hhmm_to_seconds(hhmm: str) -> int:
-    """converts hh:mm to seconds"""
+def hhmm_to_seconds(
+        hhmm: str) -> int:  # converts the time inputted from interface into seconds to be used for the delay
     if len(hhmm.split(':')) != 2:
         print('Incorrect format. Argument must be formatted as HH:MM')
         return None
