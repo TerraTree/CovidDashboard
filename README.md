@@ -34,7 +34,7 @@ From there, you can control the dashboard using the interface, with control over
 Updates can be removed by removing them from the left side of the interface.
 News articles can be removed, after which they will not appear
 
-##Documentation
+## Documentation
 
 Documentation can be found in the docs/build/index.html file, listing the modules used within the code
 
