@@ -10,10 +10,6 @@ from flask import request, render_template, Flask
 from covid_data_handler import covid_API_request
 from covid_news_handling import update_news
 from time_conversions import hhmm_to_seconds
-from tests import test_covid_data_handler, test_news_data_handling
-
-
-# import tests.test_covid_data_handler
 
 
 def add_news_articles():

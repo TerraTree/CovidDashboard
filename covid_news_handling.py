@@ -19,7 +19,8 @@ def news_API_request(covid_terms="Covid COVID-19 coronavirus") -> list:
         response = requests.get(url)
         return response.json()["articles"]
     except KeyError:
-        logging.error("News request processed but invalid results. API key may have been used too much.")
+        logging.error("News request processed but invalid results. "
+                      "API key may have been used too much.")
         return None
     except:
         logging.error("Error occured with NewsAPI")

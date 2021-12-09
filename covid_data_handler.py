@@ -46,7 +46,6 @@ def process_covid_csv_data(covid_csv_data: list):
             break
     for i in range(2, 9):
         cases = int(covid_csv_data[i][6])
-        print("data:" + covid_csv_data[i][6])
         cases_7_days = cases_7_days + cases
     return cases_7_days, current_hospital_cases, cumulative_deaths
 
@@ -74,7 +73,6 @@ def covid_API_request(location="Exeter", location_type="ltla") -> dict:
         # loop to get the cases for the last 7 days for displaying on the interface
         day_7 += data["data"][i]["newCasesByPublishDate"]
     for day in data["data"]:
-        print(day["hospitalCases"])
         if day["hospitalCases"] != 0 and day["hospitalCases"] is not None and hospital_cases == 0:
             hospital_cases = day["hospitalCases"]
         if day["cumDeaths28DaysByDeathDate"] != 0 \
@@ -93,6 +91,5 @@ def covid_API_request(location="Exeter", location_type="ltla") -> dict:
 
 def schedule_covid_updates(update_interval, update_name):
     """Schedules a data update"""
-    s = sched.scheduler(time.time, time.sleep)
-    s.enter(update_interval, 1, covid_API_request)
-    return
+    schd = sched.scheduler(time.time, time.sleep)
+    schd.enter(update_interval, 1, covid_API_request)
