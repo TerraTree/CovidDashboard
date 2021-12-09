@@ -8,4 +8,4 @@ def test_news_API_request():
 
 
 def test_update_news():
-    update_news('test')
+    update_news('test', [])

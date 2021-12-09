@@ -2,6 +2,9 @@
 read and put into data form that can be used by the interface.
 Can fetch local and national data from the API"""
 
+import sched
+import time
+
 from uk_covid19 import Cov19API
 
 
@@ -71,11 +74,12 @@ def covid_API_request(location="Exeter", location_type="ltla") -> dict:
         # loop to get the cases for the last 7 days for displaying on the interface
         day_7 += data["data"][i]["newCasesByPublishDate"]
     for day in data["data"]:
-        if day["hospitalCases"] != 0 and day["hospitalCases"] is not None and hospital_cases > 0:
+        print(day["hospitalCases"])
+        if day["hospitalCases"] != 0 and day["hospitalCases"] is not None and hospital_cases == 0:
             hospital_cases = day["hospitalCases"]
         if day["cumDeaths28DaysByDeathDate"] != 0 \
                 and day["cumDeaths28DaysByDeathDate"] is not None \
-                and cum_deaths > 0:
+                and cum_deaths == 0:
             cum_deaths = day["cumDeaths28DaysByDeathDate"]
         if hospital_cases > 0 and cum_deaths > 0:
             break
@@ -89,5 +93,6 @@ def covid_API_request(location="Exeter", location_type="ltla") -> dict:
 
 def schedule_covid_updates(update_interval, update_name):
     """Schedules a data update"""
-    # s.enter(20,1,covid_api_request())
+    s = sched.scheduler(time.time, time.sleep)
+    s.enter(update_interval, 1, covid_API_request)
     return
