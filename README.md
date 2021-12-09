@@ -2,12 +2,13 @@
 
 This is a Covid Dashboard for viewing Covid-19 data for local and national areas and news related to Covid-19.
 
+The source code is also available on [Github](https://github.com/TerraTree/CovidDashboard)
 
 # Dependencies
 
 Python 3.10+ is required to use this, but earlier versions may work.
 
-Additional modules will be required to run this.
+Additional modules not preinstalled with Python will be required to run this.
 
  [Covid-19 API](https://publichealthengland.github.io/coronavirus-dashboard-api-python-sdk/)
 
@@ -33,7 +34,9 @@ From there, you can control the dashboard using the interface, with control over
 Updates can be removed by removing them from the left side of the interface.
 News articles can be removed, after which they will not appear
 
+##Documentation
 
+Documentation can be found in the docs/build/index.html file, listing the modules used within the code
 
 ## Details
 
